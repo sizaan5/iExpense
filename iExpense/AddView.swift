@@ -36,7 +36,23 @@ struct AddView: View {
             .toolbar {
                 Button("Save") {
                     let item = ExpenseItem(name: name, type: type, amount: amount)
-                    expense.items.append(item)
+                    //let savedItems = expense.types.filter({ ( $0.type.lowercased() == type.lowercased() ) })
+                    
+                    if let savedItemsIndex = expense.types.firstIndex(where: { ( $0.type.lowercased() == type.lowercased() ) }) {
+                        expense.types[savedItemsIndex].items.append(item)
+                    } else {
+                        let types = ExpenseType(type: type, items: [item])
+                        expense.types.append(types)
+                    }
+                    
+                    /*var items = savedItems.first?.items
+                    if savedItems.count > 0 {
+                        items?.append(item)
+                        
+                    } else {
+                        let types = ExpenseType(type: type, items: [item])
+                        expense.types.append(types)
+                    }*/
                     
                     dismiss()
                 }

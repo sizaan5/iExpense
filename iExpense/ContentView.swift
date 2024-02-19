@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+struct ExpenseType: Codable {
+    var type: String
+    var items: [ExpenseItem]
+}
+
 struct ExpenseItem: Identifiable, Codable {
     var id = UUID()
     let name: String
@@ -16,19 +21,43 @@ struct ExpenseItem: Identifiable, Codable {
 
 @Observable class Expenses {
     
-    init() {
+    /*init() {
         if let savedItems = UserDefaults.standard.data(forKey: "items") {
             if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
                 items = decodedItems
                 return
             }
         }
+    }*/
+    /*init() {
+        if let savedType1 = UserDefaults.standard.data(forKey: "types") {
+            if let decodedTypes = try? JSONDecoder().decode([ExpenseType].self, from: savedType1) {
+                types = decodedTypes1
+                return
+            }
+        }
+    }*/
+    
+    init() {
+        if let savedTypes = UserDefaults.standard.data(forKey: "types") {
+            if let decodedTypes = try? JSONDecoder().decode([ExpenseType].self, from: savedTypes) {
+                types = decodedTypes
+            }
+        }
     }
     
-    var items: [ExpenseItem] = [] {
+    /*var items: [ExpenseItem] = [] {
         didSet {
             if let encoded = try? JSONEncoder().encode(items) {
                 UserDefaults.standard.set(encoded, forKey: "items")
+            }
+        }
+    }*/
+    
+    var types: [ExpenseType] = [] {
+        didSet {
+            if let encoded = try? JSONEncoder().encode(types) {
+                UserDefaults.standard.set(encoded, forKey: "types")
             }
         }
     }
@@ -41,22 +70,48 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             List {
-                ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
+                if expenses.types.indices.contains(0) {
+                    Section(expenses.types[0].type) {
+                        ForEach(expenses.types[0].items) { item in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    //Text(item.type)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                    .modifier(ExpenseStyling(value: item.amount))
+                            }
                         }
-                        
-                        Spacer()
-                        
-                        Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                        .onDelete(perform: { indexSet in
+                            removeItems(at: indexSet, section: 0)
+                        })
                     }
                 }
-                .onDelete(perform: { indexSet in
-                    removeItems(at: indexSet)
-                })
+                if expenses.types.indices.contains(1) {
+                    Section(expenses.types[1].type) {
+                        ForEach(expenses.types[1].items) { item in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(item.name)
+                                        .font(.headline)
+                                    //Text(item.type)
+                                }
+                                
+                                Spacer()
+                                
+                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                    .modifier(ExpenseStyling(value: item.amount))
+                            }
+                        }
+                        .onDelete(perform: { indexSet in
+                            removeItems(at: indexSet, section: 1)
+                        })
+                    }
+                }
             }
             .navigationTitle("iExpense")
             .toolbar {
@@ -70,11 +125,40 @@ struct ContentView: View {
         }
     }
     
-    func removeItems(at offsets: IndexSet) {
-        expenses.items.remove(atOffsets: offsets)
+    func removeItems(at offsets: IndexSet, section: Int) {
+        expenses.types[section].items.remove(atOffsets: offsets)
+        if expenses.types[section].items.count <= 0 {
+            if let index = expenses.types.firstIndex(where: { ( $0.type.lowercased() == expenses.types[section].type ) }) {
+                expenses.types.remove(at: index)
+            }
+            //expenses.types.removeAll(where: { ( $0.type.lowercased() == expenses.types[section].type ) })
+        }
     }
 }
 
 #Preview {
     ContentView()
+}
+
+
+struct ExpenseStyling: ViewModifier {
+    let value: Double
+    func body(content: Content) -> some View {
+        if value < 100 {
+            content
+                .fontWeight(.regular)
+                .padding(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+        } else if value < 1000 {
+            content
+                .fontWeight(.semibold)
+                .padding(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+                .underline()
+        } else {
+            content
+                .fontWeight(.bold)
+                .padding(EdgeInsets(top: 2, leading: 6, bottom: 2, trailing: 6))
+                .background(.red.opacity(0.5))
+                .clipShape(.rect(cornerRadius: 30))
+        }
+    }
 }
