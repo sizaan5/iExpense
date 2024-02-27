@@ -11,6 +11,7 @@
 		3368EAE12B7DE0DA0033FE53 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3368EAE02B7DE0DA0033FE53 /* ContentView.swift */; };
 		3368EAE32B7DE0DE0033FE53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3368EAE22B7DE0DE0033FE53 /* Assets.xcassets */; };
 		3368EAE62B7DE0DE0033FE53 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3368EAE52B7DE0DE0033FE53 /* Preview Assets.xcassets */; };
+		338AB2582B8C9D840065E75A /* EditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 338AB2572B8C9D840065E75A /* EditView.swift */; };
 		33C87C3A2B7F2E120070C8B9 /* AddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33C87C392B7F2E120070C8B9 /* AddView.swift */; };
 /* End PBXBuildFile section */
 
@@ -20,6 +21,7 @@
 		3368EAE02B7DE0DA0033FE53 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3368EAE22B7DE0DE0033FE53 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3368EAE52B7DE0DE0033FE53 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		338AB2572B8C9D840065E75A /* EditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditView.swift; sourceTree = "<group>"; };
 		33C87C392B7F2E120070C8B9 /* AddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -55,6 +57,7 @@
 			children = (
 				3368EADE2B7DE0DA0033FE53 /* iExpenseApp.swift */,
 				33C87C392B7F2E120070C8B9 /* AddView.swift */,
+				338AB2572B8C9D840065E75A /* EditView.swift */,
 				3368EAE02B7DE0DA0033FE53 /* ContentView.swift */,
 				3368EAE22B7DE0DE0033FE53 /* Assets.xcassets */,
 				3368EAE42B7DE0DE0033FE53 /* Preview Content */,
@@ -142,6 +145,7 @@
 			files = (
 				3368EAE12B7DE0DA0033FE53 /* ContentView.swift in Sources */,
 				3368EADF2B7DE0DA0033FE53 /* iExpenseApp.swift in Sources */,
+				338AB2582B8C9D840065E75A /* EditView.swift in Sources */,
 				33C87C3A2B7F2E120070C8B9 /* AddView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

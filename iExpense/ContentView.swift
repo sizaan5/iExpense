@@ -73,17 +73,21 @@ struct ContentView: View {
                 if expenses.types.indices.contains(0) {
                     Section(expenses.types[0].type) {
                         ForEach(expenses.types[0].items) { item in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(item.name)
-                                        .font(.headline)
-                                    //Text(item.type)
+                            NavigationLink {
+                                EditView(id: item.id, name: item.name, type: item.type, amount: item.amount, expense: expenses)
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(item.name)
+                                            .font(.headline)
+                                        //Text(item.type)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                        .modifier(ExpenseStyling(value: item.amount))
                                 }
-                                
-                                Spacer()
-                                
-                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                                    .modifier(ExpenseStyling(value: item.amount))
                             }
                         }
                         .onDelete(perform: { indexSet in
@@ -94,17 +98,21 @@ struct ContentView: View {
                 if expenses.types.indices.contains(1) {
                     Section(expenses.types[1].type) {
                         ForEach(expenses.types[1].items) { item in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(item.name)
-                                        .font(.headline)
-                                    //Text(item.type)
+                            NavigationLink {
+                                EditView(id: item.id, name: item.name, type: item.type, amount: item.amount, expense: expenses)
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(item.name)
+                                            .font(.headline)
+                                        //Text(item.type)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+                                        .modifier(ExpenseStyling(value: item.amount))
                                 }
-                                
-                                Spacer()
-                                
-                                Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                                    .modifier(ExpenseStyling(value: item.amount))
                             }
                         }
                         .onDelete(perform: { indexSet in
@@ -115,9 +123,14 @@ struct ContentView: View {
             }
             .navigationTitle("iExpense")
             .toolbar {
-                Button("Add Expense", systemImage: "plus") {
-                    showingAddExpense = true
+                NavigationLink {
+                    AddView(expense: expenses)
+                } label: {
+                    Image(systemName: "plus")
                 }
+                /*Button("Add Expense", systemImage: "plus") {
+                    showingAddExpense = true
+                }*/
             }
             .sheet(isPresented: $showingAddExpense, content: {
                 AddView(expense: expenses)
