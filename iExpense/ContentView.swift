@@ -6,145 +6,58 @@
 //
 
 import SwiftUI
-
-struct ExpenseType: Codable {
-    var type: String
-    var items: [ExpenseItem]
-}
-
-struct ExpenseItem: Identifiable, Codable {
-    var id = UUID()
-    let name: String
-    let type: String
-    let amount: Double
-}
-
-@Observable class Expenses {
-    
-    /*init() {
-        if let savedItems = UserDefaults.standard.data(forKey: "items") {
-            if let decodedItems = try? JSONDecoder().decode([ExpenseItem].self, from: savedItems) {
-                items = decodedItems
-                return
-            }
-        }
-    }*/
-    /*init() {
-        if let savedType1 = UserDefaults.standard.data(forKey: "types") {
-            if let decodedTypes = try? JSONDecoder().decode([ExpenseType].self, from: savedType1) {
-                types = decodedTypes1
-                return
-            }
-        }
-    }*/
-    
-    init() {
-        if let savedTypes = UserDefaults.standard.data(forKey: "types") {
-            if let decodedTypes = try? JSONDecoder().decode([ExpenseType].self, from: savedTypes) {
-                types = decodedTypes
-            }
-        }
-    }
-    
-    /*var items: [ExpenseItem] = [] {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(items) {
-                UserDefaults.standard.set(encoded, forKey: "items")
-            }
-        }
-    }*/
-    
-    var types: [ExpenseType] = [] {
-        didSet {
-            if let encoded = try? JSONEncoder().encode(types) {
-                UserDefaults.standard.set(encoded, forKey: "types")
-            }
-        }
-    }
-}
+import SwiftData
 
 struct ContentView: View {
-    @State private var expenses = Expenses()
+    //@State private var expenses = Expenses()
+    @Query private var expenses: [ExpenseType_SwiftData]
     @State private var showingAddExpense = false
+    /*@State private var sortOrder = [
+        SortDescriptor(\ExpenseType_SwiftData.items?.first?.name),
+        SortDescriptor(\ExpenseType_SwiftData.items?.first?.amount)
+    ]*/
+    @State private var sortOrderType: ExpenseTypeEnums = .ALL
     
     var body: some View {
         NavigationStack {
-            List {
-                if expenses.types.indices.contains(0) {
-                    Section(expenses.types[0].type) {
-                        ForEach(expenses.types[0].items) { item in
-                            NavigationLink {
-                                EditView(id: item.id, name: item.name, type: item.type, amount: item.amount, expense: expenses)
-                            } label: {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(item.name)
-                                            .font(.headline)
-                                        //Text(item.type)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                                        .modifier(ExpenseStyling(value: item.amount))
-                                }
-                            }
-                        }
-                        .onDelete(perform: { indexSet in
-                            removeItems(at: indexSet, section: 0)
-                        })
+            VStack(spacing: .zero) {
+                if self.sortOrderType == ExpenseTypeEnums.ALL {
+                    ForEach(expenses) { expense in
+                        ExpenseListView(expenseType: expense, title: expense.type, sortOrderType: sortOrderType)
                     }
-                }
-                if expenses.types.indices.contains(1) {
-                    Section(expenses.types[1].type) {
-                        ForEach(expenses.types[1].items) { item in
-                            NavigationLink {
-                                EditView(id: item.id, name: item.name, type: item.type, amount: item.amount, expense: expenses)
-                            } label: {
-                                HStack {
-                                    VStack(alignment: .leading) {
-                                        Text(item.name)
-                                            .font(.headline)
-                                        //Text(item.type)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                                        .modifier(ExpenseStyling(value: item.amount))
-                                }
-                            }
-                        }
-                        .onDelete(perform: { indexSet in
-                            removeItems(at: indexSet, section: 1)
-                        })
+                } else {
+                    if let filterExpense = self.expenses.filter({ ( $0.type.lowercased() == self.sortOrderType.rawValue.lowercased() ) }).first {
+                        ExpenseListView(expenseType: filterExpense, title: filterExpense.type, sortOrderType: sortOrderType)
                     }
                 }
             }
             .navigationTitle("iExpense")
             .toolbar {
-                NavigationLink {
-                    AddView(expense: expenses)
-                } label: {
-                    Image(systemName: "plus")
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    NavigationLink {
+                        AddView()
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    
+                    Menu("Sort", systemImage: "arrow.up.arrow.down"){
+                        Picker("Sort", selection: $sortOrderType) {
+                            Text("Show All")
+                                .tag(ExpenseTypeEnums.ALL)
+                            Text("Show Personal")
+                                .tag(ExpenseTypeEnums.PERSONAL)
+                            Text("Show Business")
+                                .tag(ExpenseTypeEnums.BUSINESS)
+                        }
+                    }
                 }
                 /*Button("Add Expense", systemImage: "plus") {
                     showingAddExpense = true
                 }*/
             }
-            .sheet(isPresented: $showingAddExpense, content: {
-                AddView(expense: expenses)
-            })
-        }
-    }
-    
-    func removeItems(at offsets: IndexSet, section: Int) {
-        expenses.types[section].items.remove(atOffsets: offsets)
-        if expenses.types[section].items.count <= 0 {
-            if let index = expenses.types.firstIndex(where: { ( $0.type.lowercased() == expenses.types[section].type ) }) {
-                expenses.types.remove(at: index)
-            }
-            //expenses.types.removeAll(where: { ( $0.type.lowercased() == expenses.types[section].type ) })
+            /*.sheet(isPresented: $showingAddExpense, content: {
+                AddView(expense: expenses.first)
+            })*/
         }
     }
 }
@@ -174,4 +87,15 @@ struct ExpenseStyling: ViewModifier {
                 .clipShape(.rect(cornerRadius: 30))
         }
     }
+}
+
+enum ExpenseTypeEnums: String {
+    case ALL = "All"
+    case BUSINESS = "Business"
+    case PERSONAL = "Personal"
+}
+
+enum SortOrder {
+    case name
+    case amount
 }
